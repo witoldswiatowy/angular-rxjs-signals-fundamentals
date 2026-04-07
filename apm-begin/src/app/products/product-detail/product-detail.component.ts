@@ -1,25 +1,59 @@
-import { Component, Input } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+} from '@angular/core';
 
 import { NgIf, NgFor, CurrencyPipe } from '@angular/common';
 import { Product } from '../product';
+import { ProductService } from '../product.service';
+import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'pm-product-detail',
-    templateUrl: './product-detail.component.html',
-    standalone: true,
-    imports: [NgIf, NgFor, CurrencyPipe]
+  selector: 'pm-product-detail',
+  templateUrl: './product-detail.component.html',
+  standalone: true,
+  imports: [NgIf, NgFor, CurrencyPipe],
 })
-export class ProductDetailComponent {
-  // Just enough here for the template to compile
+export class ProductDetailComponent implements OnChanges, OnDestroy {
   @Input() productId: number = 0;
   errorMessage = '';
+  productSub!: Subscription;
+
+  private productService = inject(ProductService);
 
   // Product to display
   product: Product | null = null;
 
   // Set the page title
-  pageTitle = this.product ? `Product Detail for: ${this.product.productName}` : 'Product Detail';
+  pageTitle = this.product
+    ? `Product Detail for: ${this.product.productName}`
+    : 'Product Detail';
 
-  addToCart(product: Product) {
+  ngOnChanges(changes: SimpleChanges): void {
+    const id = changes['productId'].currentValue;
+    if (id) {
+      this.productSub = this.productService.getProduct(id).subscribe({
+        next: (product) => {
+          this.product = product;
+          console.log(
+            'ProductDetailComponent ngOnChanges - product loaded',
+            this.product,
+          );
+        },
+        error: (err) => (this.errorMessage = err),
+      });
+    }
   }
+
+  ngOnDestroy(): void {
+    if (this.productSub) {
+      this.productSub.unsubscribe();
+    }
+  }
+
+  addToCart(product: Product) {}
 }
