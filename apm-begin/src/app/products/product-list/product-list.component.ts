@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
 import { ProductService } from '../product.service';
 import { catchError, EMPTY, tap } from 'rxjs';
@@ -9,7 +9,7 @@ import { catchError, EMPTY, tap } from 'rxjs';
   selector: 'pm-product-list',
   templateUrl: './product-list.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, ProductDetailComponent],
+  imports: [AsyncPipe, NgIf, NgFor, NgClass, ProductDetailComponent],
 })
 export class ProductListComponent {
   pageTitle = 'Products';
