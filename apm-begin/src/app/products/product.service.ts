@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   catchError,
+  filter,
   map,
   Observable,
   of,
@@ -39,6 +40,18 @@ export class ProductService {
       console.log('After shareReplay in ProductService products$ pipeline'),
     ),
     catchError((err) => this.handleError(err)),
+  );
+
+  readonly product$ = this.productSelected$
+  .pipe(
+    filter(Boolean),
+    switchMap((id) => {
+      return this.http.get<Product>(this.productUrl + id)
+        .pipe(
+          switchMap((product) => this.getProductWithReviews(product)),
+          catchError((err) => this.handleError(err)),
+      );
+    }),
   );
 
   getProduct(id: number): Observable<Product> {
