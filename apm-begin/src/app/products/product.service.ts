@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { Product } from './product';
 import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
@@ -22,7 +22,9 @@ export class ProductService {
 
   readonly products$ = this.http.get<Product[]>(this.productsUrl)
       .pipe(
-        tap(() => console.log('In http.get pipeline')),
+        tap(p => console.log(JSON.stringify(p))),
+        shareReplay(1), //dodajemy shareReplay() do strumienia products$, aby zapewnić, że dane są buforowane i udostępniane wszystkim subskrybentom, co pozwala uniknąć wielokrotnych żądań HTTP i poprawia wydajność aplikacji.
+        tap(() => console.log('After shareReplay in ProductService products$ pipeline')),
         catchError(err => this.handleError(err))
       );
       //jest to sposób deklaratywny, który jest bardziej elastyczny i łatwiejszy do testowania, ponieważ products$ jest strumieniem Observable, 

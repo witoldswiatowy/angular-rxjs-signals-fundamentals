@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
 import { ProductService } from '../product.service';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { catchError, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'pm-product-list',
@@ -21,7 +21,7 @@ export class ProductListComponent {
   // Products
   readonly products$ = this.productService.products$
       .pipe(
-        tap(() => console.log('In ProductListComponent ngOnInit')),
+        // tap(() => console.log('In ProductListComponent ngOnInit')),
         catchError(err => {
           this.errorMessage = err;
           return EMPTY;
