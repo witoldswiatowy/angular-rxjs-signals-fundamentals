@@ -40,7 +40,7 @@ export class ProductService {
 
   getProduct(id: number): Observable<Product> {
     return this.http
-      .get<Product>(this.productUrl + 's/' +id)
+      .get<Product>(this.productUrl + id)
       .pipe(
         tap(() => console.log(`In http.get pipeline for id=${id}`)),
         catchError(err => this.handleError(err))
