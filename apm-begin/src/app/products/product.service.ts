@@ -9,7 +9,7 @@ import { HttpErrorService } from '../utilities/http-error.service';
   providedIn: 'root',
 })
 export class ProductService {
-  private productsUrl = 'api/productss';
+  private productsUrl = 'api/products';
   private productUrl = 'api/products/';
 
   // constructor(private http: HttpClient) { } //zamiast tego lepiej użyć inject() w polu, bo to jest bardziej elastyczne i pozwala na łatwiejsze testowanie, czyli: private http = inject(HttpClient);
@@ -40,11 +40,13 @@ export class ProductService {
 
   getProduct(id: number): Observable<Product> {
     return this.http
-      .get<Product>(this.productUrl + id)
+      .get<Product>(this.productUrl + 's/' +id)
       .pipe(
-        tap(() => console.log(`In http.get pipeline for id=${id}`))
+        tap(() => console.log(`In http.get pipeline for id=${id}`)),
+        catchError(err => this.handleError(err))
       );
   }
+
   private handleError(err: HttpErrorResponse): Observable<never> {
     const formattedMessage = this.httpErrorService.formatError(err);
     return throwError(() => formattedMessage);
