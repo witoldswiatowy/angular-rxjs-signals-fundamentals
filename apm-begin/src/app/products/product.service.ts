@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { Product } from './product';
 import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
@@ -19,6 +19,9 @@ export class ProductService {
   private http = inject(HttpClient);
   private httpErrorService = inject(HttpErrorService);
   private reviewService = inject(ReviewService);
+
+  private productSelectedSubject = new BehaviorSubject<number | undefined>(undefined);
+  readonly productSelected$ = this.productSelectedSubject.asObservable();
 
   readonly products$ = this.http.get<Product[]>(this.productsUrl)
       .pipe(
@@ -68,6 +71,10 @@ export class ProductService {
         //mergeMap: nie zachowuje kolejności i nie anuluje poprzednich, więc może prowadzić do sytuacji, gdzie recenzje dla różnych produktów są mieszane, co może być mylące dla użytkownika. Robi równolegle żądania, więc jeśli użytkownik szybko wybiera różne produkty, może prowadzić do wielu żądań recenzji w toku i mieszania wyników.
         catchError(err => this.handleError(err))
       );
+  }
+
+  productSelected(selectedProductId: number): void {
+    this.productSelectedSubject.next(selectedProductId);
   }
 
   getProductWithReviews(product: Product): Observable<Product> {
