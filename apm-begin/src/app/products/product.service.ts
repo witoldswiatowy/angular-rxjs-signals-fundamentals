@@ -20,17 +20,29 @@ export class ProductService {
   private httpErrorService = inject(HttpErrorService);
   private reviewService = inject(ReviewService);
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.productsUrl)
+  readonly products$ = this.http.get<Product[]>(this.productsUrl)
       .pipe(
         tap(() => console.log('In http.get pipeline')),
-        // catchError(err => {
-        //   console.error('Error in getProducts: ', err);
-        //   return of(ProductData.products);
-        // })
         catchError(err => this.handleError(err))
       );
-  }
+      //jest to sposób deklaratywny, który jest bardziej elastyczny i łatwiejszy do testowania, ponieważ products$ jest strumieniem Observable, 
+      // który można subskrybować w różnych miejscach aplikacji, a jego wartość będzie aktualizowana automatycznie, gdy dane zostaną pobrane. 
+
+
+      //jest to sposób proceduralny, który jest mniej elastyczny i trudniejszy do testowania, ponieważ metoda getProducts() musi być wywołana, 
+      // aby pobrać produkty, a to może prowadzić do problemów z synchronizacją i zarządzaniem stanem. W przeciwieństwie do tego, 
+      // użycie strumienia Observable pozwala na łatwiejsze zarządzanie asynchronicznością i lepszą integrację z innymi strumieniami danych w aplikacji.
+  // getProducts(): Observable<Product[]> {
+  //   return this.http.get<Product[]>(this.productsUrl)
+  //     .pipe(
+  //       tap(() => console.log('In http.get pipeline')),
+  //       // catchError(err => {
+  //       //   console.error('Error in getProducts: ', err);
+  //       //   return of(ProductData.products);
+  //       // })
+  //       catchError(err => this.handleError(err))
+  //     );
+  // }
 
   // getProduct(id: number) {
   //   const productUrl = this.productsUrl + '/' + id;
