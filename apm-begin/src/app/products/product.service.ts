@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   catchError,
@@ -24,7 +24,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   providedIn: 'root',
 })
 export class ProductService {
-  private productsUrl = 'api/products';
+  private productsUrl = 'api/productss';
   private productUrl = 'api/products/';
 
   private http = inject(HttpClient);
@@ -44,9 +44,16 @@ export class ProductService {
     ),
     catchError((err) => this.handleError(err)),
   );
-  products = toSignal(this.products$, { initialValue: [] as Product[] });
+  // products = toSignal(this.products$, { initialValue: [] as Product[] });
+  products = computed(() => {
+    try {
+      return toSignal(this.products$, { initialValue: [] as Product[] })();
+    } catch (error) {
+      return [] as Product[];
+    }
+  });
 
-  readonly product1$ = this.productSelected$.pipe(
+  readonly product$ = this.productSelected$.pipe(
     filter(Boolean),
     switchMap((id) => {
       return this.http.get<Product>(this.productUrl + id).pipe(
@@ -56,17 +63,17 @@ export class ProductService {
     }),
   );
 
-  product$ = combineLatest([
-    this.productSelected$, 
-    this.products$
-  ]).pipe(
-    map(([selectedProductId, products]) =>
-      products.find((p) => p.id === selectedProductId),
-    ),
-    filter(Boolean),
-    switchMap((product) => this.getProductWithReviews(product)),
-    catchError((err) => this.handleError(err)),
-  );
+  // product$ = combineLatest([
+  //   this.productSelected$, 
+  //   this.products$
+  // ]).pipe(
+  //   map(([selectedProductId, products]) =>
+  //     products.find((p) => p.id === selectedProductId),
+  //   ),
+  //   filter(Boolean),
+  //   switchMap((product) => this.getProductWithReviews(product)),
+  //   catchError((err) => this.handleError(err)),
+  // );
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
