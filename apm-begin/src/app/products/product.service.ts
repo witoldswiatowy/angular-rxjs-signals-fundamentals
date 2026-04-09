@@ -33,7 +33,8 @@ export class ProductService {
   );
   readonly productSelected$ = this.productSelectedSubject.asObservable();
 
-  readonly products$ = this.http.get<Product[]>(this.productsUrl).pipe(
+  readonly products$ = this.http.get<Product[]>(this.productsUrl)
+  .pipe(
     tap((p) => console.log(JSON.stringify(p))),
     shareReplay(1),
     tap(() =>
@@ -53,14 +54,6 @@ export class ProductService {
       );
     }),
   );
-
-  getProduct(id: number): Observable<Product> {
-    return this.http.get<Product>(this.productUrl + id).pipe(
-      tap(() => console.log(`In http.get pipeline for id=${id}`)),
-      switchMap((product) => this.getProductWithReviews(product)),
-      catchError((err) => this.handleError(err)),
-    );
-  }
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
