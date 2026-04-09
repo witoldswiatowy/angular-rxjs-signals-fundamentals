@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   catchError,
+  combineLatest,
   filter,
   map,
   Observable,
@@ -33,8 +34,7 @@ export class ProductService {
   );
   readonly productSelected$ = this.productSelectedSubject.asObservable();
 
-  readonly products$ = this.http.get<Product[]>(this.productsUrl)
-  .pipe(
+  readonly products$ = this.http.get<Product[]>(this.productsUrl).pipe(
     tap((p) => console.log(JSON.stringify(p))),
     shareReplay(1),
     tap(() =>
@@ -43,16 +43,26 @@ export class ProductService {
     catchError((err) => this.handleError(err)),
   );
 
-  readonly product$ = this.productSelected$
-  .pipe(
+  readonly product1$ = this.productSelected$.pipe(
     filter(Boolean),
     switchMap((id) => {
-      return this.http.get<Product>(this.productUrl + id)
-        .pipe(
-          switchMap((product) => this.getProductWithReviews(product)),
-          catchError((err) => this.handleError(err)),
+      return this.http.get<Product>(this.productUrl + id).pipe(
+        switchMap((product) => this.getProductWithReviews(product)),
+        catchError((err) => this.handleError(err)),
       );
     }),
+  );
+
+  product$ = combineLatest([
+    this.productSelected$, 
+    this.products$
+  ]).pipe(
+    map(([selectedProductId, products]) =>
+      products.find((p) => p.id === selectedProductId),
+    ),
+    filter(Boolean),
+    switchMap((product) => this.getProductWithReviews(product)),
+    catchError((err) => this.handleError(err)),
   );
 
   productSelected(selectedProductId: number): void {
