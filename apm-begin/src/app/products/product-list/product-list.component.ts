@@ -19,13 +19,7 @@ export class ProductListComponent {
   private productService = inject(ProductService);
 
   // Products
-  readonly products$ = this.productService.products$.pipe(
-    catchError((err) => {
-      this.errorMessage = err;
-      return EMPTY;
-    }),
-  );
-
+  products = this.productService.products;
   // Selected product id to highlight the entry
   readonly selectedProductId$ = this.productService.productSelected$;
 

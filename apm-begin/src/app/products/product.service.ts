@@ -17,6 +17,8 @@ import { Product } from './product';
 import { HttpErrorService } from '../utilities/http-error.service';
 import { ReviewService } from '../reviews/review.service';
 import { Review } from '../reviews/review';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +36,7 @@ export class ProductService {
   );
   readonly productSelected$ = this.productSelectedSubject.asObservable();
 
-  readonly products$ = this.http.get<Product[]>(this.productsUrl).pipe(
+  private products$ = this.http.get<Product[]>(this.productsUrl).pipe(
     tap((p) => console.log(JSON.stringify(p))),
     shareReplay(1),
     tap(() =>
@@ -42,6 +44,7 @@ export class ProductService {
     ),
     catchError((err) => this.handleError(err)),
   );
+  products = toSignal(this.products$, { initialValue: [] as Product[] });
 
   readonly product1$ = this.productSelected$.pipe(
     filter(Boolean),
