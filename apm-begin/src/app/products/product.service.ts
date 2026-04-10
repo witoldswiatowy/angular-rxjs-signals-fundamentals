@@ -17,7 +17,7 @@ import { Product, Result } from './product';
 import { HttpErrorService } from '../utilities/http-error.service';
 import { ReviewService } from '../reviews/review.service';
 import { Review } from '../reviews/review';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -30,10 +30,6 @@ export class ProductService {
   private httpErrorService = inject(HttpErrorService);
   private reviewService = inject(ReviewService);
 
-  private productSelectedSubject = new BehaviorSubject<number | undefined>(
-    undefined,
-  );
-  readonly productSelected$ = this.productSelectedSubject.asObservable();
   selectedProductId = signal<number | undefined>(undefined);
 
   private productResult$ = this.http.get<Product[]>(this.productsUrl).pipe(
@@ -58,7 +54,7 @@ export class ProductService {
   products = computed(() => this.productsResult().data);
   productsError = computed(() => this.productsResult().error);
 
-  readonly product$ = this.productSelected$.pipe(
+  readonly product$ = toObservable(this.selectedProductId).pipe(
     filter(Boolean),
     switchMap((id) => {
       return this.http.get<Product>(this.productUrl + id).pipe(
@@ -81,7 +77,6 @@ export class ProductService {
   // );
 
   productSelected(selectedProductId: number): void {
-    this.productSelectedSubject.next(selectedProductId);
     this.selectedProductId.set(selectedProductId);
   }
 
