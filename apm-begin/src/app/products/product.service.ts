@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import {
   BehaviorSubject,
   catchError,
@@ -23,7 +23,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   providedIn: 'root',
 })
 export class ProductService {
-  private productsUrl = 'api/productss';
+  private productsUrl = 'api/products';
   private productUrl = 'api/products/';
 
   private http = inject(HttpClient);
@@ -34,6 +34,7 @@ export class ProductService {
     undefined,
   );
   readonly productSelected$ = this.productSelectedSubject.asObservable();
+  selectedProductId = signal<number | undefined>(undefined);
 
   private productResult$ = this.http.get<Product[]>(this.productsUrl).pipe(
     map((p) => ({ data: p }) as Result<Product[]>),
@@ -81,6 +82,7 @@ export class ProductService {
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
+    this.selectedProductId.set(selectedProductId);
   }
 
   getProductWithReviews(product: Product): Observable<Product> {

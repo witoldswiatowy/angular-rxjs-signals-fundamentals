@@ -9,7 +9,7 @@ import { catchError, EMPTY } from 'rxjs';
   selector: 'pm-product-list',
   templateUrl: './product-list.component.html',
   standalone: true,
-  imports: [AsyncPipe, NgIf, NgFor, NgClass, ProductDetailComponent],
+  imports: [NgIf, NgFor, NgClass, ProductDetailComponent],
 })
 export class ProductListComponent {
   pageTitle = 'Products';
@@ -21,7 +21,7 @@ export class ProductListComponent {
   errorMessage = this.productService.productsError;
 
   // Selected product id to highlight the entry
-  readonly selectedProductId$ = this.productService.productSelected$;
+  selectedProductId = this.productService.selectedProductId;
 
   onSelected(productId: number): void {
     this.productService.productSelected(productId);
